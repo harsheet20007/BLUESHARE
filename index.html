@@ -5,28 +5,40 @@
 </head>
 <body>
     <h1>Bluetooth File Transfer</h1>
-    <input type="file" id="fileInput" multiple>
-    <button id="connect">Connect</button>
-    <button id="send">Send File</button>
+    
+    <div id="sender">
+        <h2>Sender</h2>
+        <input type="file" id="fileInput" multiple>
+        <button id="connectSender">Connect to Receiver</button>
+        <button id="sendFile">Send File</button>
+    </div>
+
+    <div id="receiver">
+        <h2>Receiver</h2>
+        <button id="connectReceiver">Connect to Sender</button>
+    </div>
 
     <script>
-        let device;
+        let device, server;
 
-        document.getElementById('connect').addEventListener('click', async () => {
+        async function connectDevice() {
             try {
                 device = await navigator.bluetooth.requestDevice({
                     acceptAllDevices: true,
                     optionalServices: ['battery_service']
                 });
-                const server = await device.gatt.connect();
+                server = await device.gatt.connect();
                 console.log('Connected to device:', device.name);
             } catch (error) {
                 console.error('Connection failed:', error);
             }
-        });
+        }
 
-        document.getElementById('send').addEventListener('click', async () => {
-            if (!device) {
+        document.getElementById('connectSender').addEventListener('click', connectDevice);
+        document.getElementById('connectReceiver').addEventListener('click', connectDevice);
+
+        document.getElementById('sendFile').addEventListener('click', async () => {
+            if (!device || !server) {
                 alert('No device connected');
                 return;
             }
@@ -37,16 +49,17 @@
                 return;
             }
 
-            const file = fileInput.files[0];
-            const reader = new FileReader();
-            reader.onload = async function (event) {
-                const arrayBuffer = event.target.result;
-                // Send the file data via Bluetooth
-                // (This is just a placeholder; you'll need to implement the actual data transfer)
-                console.log('File data:', arrayBuffer);
-                alert('File sent successfully!');
-            };
-            reader.readAsArrayBuffer(file);
+            for (let file of fileInput.files) {
+                const reader = new FileReader();
+                reader.onload = async function (event) {
+                    const arrayBuffer = event.target.result;
+                    // Send the file data via Bluetooth
+                    // Placeholder for actual data transfer
+                    console.log('Sending file data:', arrayBuffer);
+                    alert('File sent successfully!');
+                };
+                reader.readAsArrayBuffer(file);
+            }
         });
     </script>
 </body>
