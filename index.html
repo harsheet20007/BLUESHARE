@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bluetooth File Transfer</title>
+</head>
+<body>
+    <h1>Bluetooth File Transfer</h1>
+    <input type="file" id="fileInput" multiple>
+    <button id="connect">Connect</button>
+    <button id="send">Send File</button>
+
+    <script>
+        let device;
+
+        document.getElementById('connect').addEventListener('click', async () => {
+            try {
+                device = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true,
+                    optionalServices: ['battery_service']
+                });
+                const server = await device.gatt.connect();
+                console.log('Connected to device:', device.name);
+            } catch (error) {
+                console.error('Connection failed:', error);
+            }
+        });
+
+        document.getElementById('send').addEventListener('click', async () => {
+            if (!device) {
+                alert('No device connected');
+                return;
+            }
+
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput.files.length === 0) {
+                alert('No files selected');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = async function (event) {
+                const arrayBuffer = event.target.result;
+                // Send the file data via Bluetooth
+                // (This is just a placeholder; you'll need to implement the actual data transfer)
+                console.log('File data:', arrayBuffer);
+                alert('File sent successfully!');
+            };
+            reader.readAsArrayBuffer(file);
+        });
+    </script>
+</body>
+</html>
